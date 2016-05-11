@@ -1,5 +1,10 @@
 # CS583 Project: Five in a Row
- Xu Zheng (zhengxu) & Tien-Lung Chang (changti)
+
+### Contributor
+* Xu Zheng (zhengxu) 
+* Tien-Lung Chang (changti)
+
+### Description
 
 1. Our goal is to implement a board game called "Five in a Row", which is
    a two players game. The first player who make a coherently sequence of
@@ -14,6 +19,7 @@
 2. To run our project, just load "Five.hs" then input "main". There are
    some example inputs and results as follows:
 
+   ```
    >> ghci Five.hs
    >> *Five> main
    >> Please input a number N to initialize a NxN board: 10
@@ -58,6 +64,7 @@
    >> 10 *  *  *  *  *  *  *  *  *  * 10
    >> BLACK's turn:
    >> Col:
+   ```
 
 3. Q1: What kind of ability do you think a successful A.I. must have?
    Q2: How to apply monad to our project?
