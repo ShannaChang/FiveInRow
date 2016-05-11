@@ -6,7 +6,7 @@
 
 ### Description
 
-1. Our goal is to implement a board game called "Five in a Row", which is
+   Our goal is to implement a board game called "Five in a Row", which is
    a two players game. The first player who make a coherently sequence of
    five stones will win the game. The sequence can be vertically, horizontally
    or diagonally.
@@ -16,7 +16,9 @@
    an initial board, a function to customize a board, a function to update
    the current game status and a loop for run the game correctly.
 
-2. To run our project, just load "Five.hs" then input "main". There are
+### Execute
+
+   To run our project, just load "Five.hs" then input "main". There are
    some example inputs and results as follows:
 
    ```
@@ -66,6 +68,7 @@
    >> Col:
    ```
 
-3. Q1: What kind of ability do you think a successful A.I. must have?
+### Question need to figure out
+   Q1: What kind of ability do you think a successful A.I. must have? <\br >
    Q2: How to apply monad to our project?
 
