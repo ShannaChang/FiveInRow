@@ -69,6 +69,6 @@
    ```
 
 ### Question need to figure out
-   Q1: What kind of ability do you think a successful A.I. must have? <\br >
-   Q2: How to apply monad to our project?
+* Q1: What kind of ability do you think a successful A.I. must have?
+* Q2: How to apply monad to our project?
 
