@@ -66,6 +66,10 @@ updateBoard (Board x) col row player =
       newRow' = take (col-1) (x !! (row-1)) ++ [White] ++ drop col (x !! (row-1))
 
 
+checkBlank :: Board Cell -> Int -> Int -> Bool
+checkBlank (Board x) c r = (x !! c !! r) == Blank
+
+
 gameLoop :: Board Cell -> Player -> IO ()
 gameLoop (Board x) player = 
     do
@@ -75,7 +79,12 @@ gameLoop (Board x) player =
       col <- getLine
       putStr "Row: "
       row <- getLine
-      gameLoop (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (next player)
+      if checkBlank (Board x) (read col :: Int) (read row :: Int) 
+      then
+        gameLoop (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (next player)
+      else do 
+        putStrLn "Not a blank location"
+        gameLoop (Board x) player    
     where
     currentPlayer First = putStrLn "BLACK's turn: "
     currentPlayer Second = putStrLn "White's turn: "

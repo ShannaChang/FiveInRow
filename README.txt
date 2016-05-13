@@ -1,5 +1,6 @@
 CS583 Project: Five in a Row
 Xu Zheng (zhengxu) & Tien-Lung Chang (changti)
+github link: https://github.com/ShannaChang/FiveInRow
 
 1. Our goal is to implement a board game called "Five in a Row", which is
    a two players game. The first player who make a coherently sequence of
