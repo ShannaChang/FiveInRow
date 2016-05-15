@@ -68,7 +68,7 @@ updateBoard (Board x) col row player =
 
 -- Check if the input stone is good
 isGood :: Board Cell -> Int -> Int -> Bool
-isGood (Board x) c r = x !! (c-1) !! (r-1) == Blank
+isGood (Board x) c r = x !! (r-1) !! (c-1) == Blank
 
 
 gameLoop :: Board Cell -> Player -> IO ()
@@ -97,6 +97,4 @@ gameLoop (Board x) player =
 -- Players set the width and heigh of the board
 main :: IO ()
 main = do
-    putStr "Please input a number N to initialize a NxN board: "
-    n <- getLine
-    gameLoop (initBoard (read n::Int)) First
+    gameLoop (initBoard 15) First
