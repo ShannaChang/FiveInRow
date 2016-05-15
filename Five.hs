@@ -75,18 +75,16 @@ gameLoop (Board x) player =
       col <- getLine
       putStr "Row: "
       row <- getLine
-      if checkBlank (Board x) (read col :: Int) (read row :: Int) 
-      then do
-        putStrLn "Good position"
-        gameLoop (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (next player)
-      else do 
-        putStrLn "Not a blank location"
-        gameLoop (Board x) player    
+      gameLoop (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (next player)
     where
     currentPlayer First = putStrLn "BLACK's turn: "
     currentPlayer Second = putStrLn "White's turn: "
     next First = Second
     next Second = First
+
+-- Check if the input stone is good
+isGood :: Board Cell -> IO ()
+isGood = undefined
 
 
 -- Game begins here
@@ -96,8 +94,3 @@ main = do
     putStr "Please input a number N to initialize a NxN board: "
     n <- getLine
     gameLoop (initBoard (read n::Int)) First
-
-
-
-
-
