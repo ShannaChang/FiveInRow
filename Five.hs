@@ -66,6 +66,11 @@ updateBoard (Board x) col row player =
       newRow' = take (col-1) (x !! (row-1)) ++ [White] ++ drop col (x !! (row-1))
 
 
+-- Check if the input stone is good
+isGood :: Board Cell -> Int -> Int -> Bool
+isGood (Board x) c r = x !! (c-1) !! (r-1) == Blank
+
+
 gameLoop :: Board Cell -> Player -> IO ()
 gameLoop (Board x) player = 
     do
@@ -75,16 +80,17 @@ gameLoop (Board x) player =
       col <- getLine
       putStr "Row: "
       row <- getLine
+      if isGood (Board x) (read col :: Int) (read row :: Int)
+      then do
       gameLoop (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (next player)
+      else do
+      print "Bad Position!!! Please input again."
+      gameLoop (Board x) player
     where
     currentPlayer First = putStrLn "BLACK's turn: "
     currentPlayer Second = putStrLn "White's turn: "
     next First = Second
     next Second = First
-
--- Check if the input stone is good
-isGood :: Board Cell -> IO ()
-isGood = undefined
 
 
 -- Game begins here
