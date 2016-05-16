@@ -74,9 +74,9 @@ checkFive xs x | xs == [] = False
         checkLoop lst cnt | cnt >= 5         = True
                           | lst == []        = checkFive (tail xs) x
                           | head lst == x    = checkLoop (tail lst) (cnt+1)
-                          | otherwise        = checkLoop (tail lst) 0
+                          | otherwise        = checkLoop (tail lst) 1
       in
-        checkLoop (head xs) 0
+        checkLoop (head xs) 1
 
 
 --getList :: Board Cell -> Int -> Int -> [[Cell]]
@@ -107,8 +107,8 @@ checkFive xs x | xs == [] = False
 getList :: Board Cell -> Int -> Int -> [[Cell]]
 getList (Board board) x y =
     let
-        getRow = board !! y
-        getCol = map (!! x) board
+        getRow = board !! (y-1)
+        getCol = map (!! (x-1)) board
     in
         [getRow, getCol]
 
@@ -130,11 +130,10 @@ gameLoop (Board x) player =
       if isGood (Board x) (read col :: Int) (read row :: Int)
       then do
         if checkFive (getList (Board x) (read col :: Int) (read row :: Int)) (checkPlayer player)
-        then 
+        then do 
           putStrLn "Win"
-        else do
-        putStrLn "notWin"
-        gameLoop (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (next player)
+        else
+         gameLoop (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (next player)
       else do
        print "Bad Position!!! Please input again."
        gameLoop (Board x) player
