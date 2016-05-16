@@ -78,56 +78,32 @@ checkFive xs x | xs == [] = False
       in
         checkLoop (head xs) 1
 
+getPos :: Board Cell -> Int -> Int -> Cell
+getPos (Board board) x y = board !! (y-1) !! (x-1)
 
---getList :: Board Cell -> Int -> Int -> [[Cell]]
---getList (Board board) x y =
---    let
---        getRow = board !! (y+1)
---        getCol = map (!! (x+1)) board
---        width = length (head board)
---        height = length board
-
---        startUL | x < y     = (1, y-x+1)
---                | otherwise = (x-y+1, 1)
---        startUR | width-x < y = (width+1, y-(width-x))
---                | otherwise     = (x+y-1, 1)
-
---        getULtoDR x y lst | x < width && y < height = getULtoDR (x+1) (y+1) (lst ++ [(getIshi (Board board) x y)])
---                          | otherwise               = lst
-
---        getURtoDL x y lst | 0 < x && y <= height = getURtoDL (x-1) (y+1) (lst ++ [(getIshi (Board board) x y)])
---                          | otherwise            = lst
---    in
---      [getRow,
---       getCol,
---       getULtoDR (fst startUL) (snd startUL) [],
---       getURtoDL (fst startUR) (snd startUR) []]
-
-getIshi :: Board Cell -> Int -> Int -> Cell
-getIshi (Board board) x y = board !! (y-1) !! (x-1)
-
-getList :: Board Cell -> Int -> Int -> [[Cell]]
-getList (Board board) x y =
+checkList :: Board Cell -> Int -> Int -> [[Cell]]
+checkList (Board board) x y =
     let
         getRow = board !! (y-1)
         getCol = map (!! (x-1)) board
-        width = (length (head board))+1
+        width  = (length (head board))+1
         height = (length board)+1
 
-        startUL | x < y     = (1, y-x+1)
-                | otherwise = (x-y+1, 1)
-        --startUR | width-x < y = (width+1, y-(width-x))
-        --        | otherwise     = (x+y-1, 1)
+        startUL | x < y        = (1, y-x+1)
+                | otherwise    = (x-y+1, 1)
+        --startUR | width-x < y  = (width, y-(width-x-1))
+        --        | otherwise    = (x+y-1, 1)
 
-        getULtoDR x y lst | x < width && y < height = getULtoDR (x+1) (y+1) (lst ++ [(getIshi (Board board) x y)])
+        getULtoDR x y lst | x < width && y < height = getULtoDR (x+1) (y+1) (lst ++ [(getPos (Board board) x y)])
                           | otherwise               = lst
 
-        --getURtoDL x y lst | 0 < x && y <= height = getURtoDL (x-1) (y+1) (lst ++ [(getIshi (Board board) x y)])
+        --getURtoDL x y lst | 1 < x && y < height = getURtoDL (x-1) (y+1) (lst ++ [(getPos (Board board) x y)])
         --                  | otherwise            = lst
     in
         [getRow,
          getCol,
          getULtoDR (fst startUL) (snd startUL) []]
+         --getURtoDL (fst startUR) (snd startUR) []]
 
 
 -- Check if the input stone is good
@@ -146,7 +122,7 @@ gameLoop (Board x) player =
       row <- getLine
       if isGood (Board x) (read col :: Int) (read row :: Int)
       then do
-        if checkFive (getList (Board x) (read col :: Int) (read row :: Int)) (checkPlayer player)
+        if checkFive (checkList (Board x) (read col :: Int) (read row :: Int)) (checkPlayer player)
         then do 
           putStrLn "Win"
         else
