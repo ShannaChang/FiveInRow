@@ -25,39 +25,28 @@ initBoard x = Board (replicate x (replicate x Blank))
 -- If Blank -> *
 -- If Blakc -> O
 -- If White -> X
+colMark :: [[Cell]] -> Int -> IO ()
+colMark [] idx = putStrLn ""
+colMark (y:ys) idx | idx < 10 = putStr ((show idx) ++ "  ") >> colMark ys (idx+1)
+                   | idx >= 10 = putStr ((show idx) ++ " ") >> colMark ys (idx+1)
+
+rowMark :: [[Cell]] -> Int -> IO ()
+rowMark [] idx = return ()
+rowMark (y:ys) idx | idx < 10 = putStr ((show idx) ++ " ") >> showCell y idx >> rowMark ys (idx+1)
+                   | idx >= 10 = putStr ((show idx) ++ "") >> showCell y idx >> rowMark ys (idx+1)
+
+showCell :: [Cell] -> Int -> IO ()
+showCell [] idx = print idx
+showCell (y:ys) idx | y == Blank = putStr " * " >> showCell ys idx
+                    | y == Black = putStr " O " >> showCell ys idx
+                    | y == White = putStr " X " >> showCell ys idx
+
 showBoard :: Board Cell -> IO ()
-showBoard (Board (x:xs)) = 
-    let
-        colMark [] idx = putStrLn ""
-        colMark (y:ys) idx | idx < 10 = do putStr ((show idx) ++ "  ")
-                                           colMark ys (idx+1)
-                           | idx >= 10 = do putStr((show idx) ++ " ")
-                                            colMark ys (idx+1)
-
-        rowMark [] idx = return ()
-        rowMark (y:ys) idx | idx < 10 = do putStr ((show idx) ++ " ")
-                                           showCell y idx
-                                           rowMark ys (idx+1)
-                           | idx >= 10 = do putStr ((show idx) ++ "")
-                                            showCell y idx
-                                            rowMark ys (idx+1)
-
-        showCell [] idx    = print idx
-        showCell (y:ys) idx | y == Blank = do putStr " * "
-                                              showCell ys idx
-                            | y == Black = do putStr " O "
-                                              showCell ys idx
-                            | y == White = do putStr " X "
-                                              showCell ys idx
-    in
-        do
-            putStr "   "
-            colMark (x:xs) 1
-            rowMark (x:xs) 1
-            putStr "   "
-            colMark (x:xs) 1
+showBoard (Board (x:xs)) = putStr "   " >> colMark (x:xs) 1 >> rowMark (x:xs) 1 >>
+                           putStr "   " >> colMark (x:xs) 1
 
 
+-- update the board
 updateBoard :: Board Cell -> Int -> Int -> Player -> Board Cell
 updateBoard (Board x) col row player = 
     if player == First then do
