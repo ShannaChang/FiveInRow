@@ -2,6 +2,7 @@
 -- Xu Zheng (zhengxu) & Tien-Lung Chang (changti)
 
 module Five where
+import System.Random
 
 data Cell = Black
           | White
@@ -10,6 +11,7 @@ data Cell = Black
 
 data Player = First
             | Second
+            | Robot
   deriving (Eq,Show)
 
 data Board a = Board [[a]] deriving (Show)
@@ -132,15 +134,61 @@ gameLoop (Board x) player =
        gameLoop (Board x) player
     where
     currentPlayer First = putStrLn "BLACK's turn: "
-    currentPlayer Second = putStrLn "White's turn: "
+    currentPlayer Second = putStrLn "WHITE's turn: "
     next First = Second
     next Second = First
     checkPlayer First = Black
     checkPlayer Second = White
+
+-- Add A.I.
+gameLoop' (Board x) player =
+    do
+      if player == Second then do
+        showBoard (Board x)
+        currentPlayer player
+        putStr "Col: "
+        col <- getLine
+        putStr "Row: "
+        row <- getLine
+        if isGood (Board x) (read col :: Int) (read row :: Int)
+          then do
+          gameLoop' (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (next player)
+          else do
+          print "Bad Position!!! Please input again."
+          gameLoop' (Board x) player
+      else do
+        showBoard (Board x)
+        currentPlayer player
+        col <- randomRIO(1,15) >>= (\x -> return x)
+        putStr "Col: "
+        print col
+        row <- randomRIO(1,15) >>= (\x -> return x)
+        putStr "Row: "
+        print row
+        if isGood (Board x) col row
+          then do
+          gameLoop' (updateBoard (Board x) col row player) (next player)
+          else do
+          print "Bad Position!!! Please input again."
+          gameLoop' (Board x) player
+    where
+    currentPlayer First = putStrLn "BLACK's turn: "
+    currentPlayer Second = putStrLn "WHITE's turn: "
+    next First = Second
+    next Second = First
 
 
 -- Game begins here
 -- Players set the width and heigh of the board
 main :: IO ()
 main = do
-    gameLoop (initBoard 15) First
+    print "Do you want to play with A.I.? (yes/no)"
+    s <- getLine
+    if s == "yes"
+      then do
+      gameLoop' (initBoard 15) First
+      else if s == "no"
+        then do
+        gameLoop (initBoard 15) First
+        else do
+          main
