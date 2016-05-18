@@ -3,6 +3,7 @@
 
 module Five where
 import System.Random
+--import SimpleAI
 
 data Cell = Black
           | White
@@ -24,33 +25,47 @@ initBoard x = Board (replicate x (replicate x Blank))
 -- If Blank -> *
 -- If Blakc -> O
 -- If White -> X
-colMark :: [[Cell]] -> Int -> IO ()
-colMark [] idx = putStrLn ""
-colMark (y:ys) idx | idx < 10 = putStr ((show idx) ++ "  ") >> colMark ys (idx+1)
-                   | idx >= 10 = putStr ((show idx) ++ " ") >> colMark ys (idx+1)
-
-rowMark :: [[Cell]] -> Int -> IO ()
-rowMark [] idx = return ()
-rowMark (y:ys) idx | idx < 10 = putStr ((show idx) ++ " ") >> showCell y idx >> rowMark ys (idx+1)
-                   | idx >= 10 = putStr ((show idx) ++ "") >> showCell y idx >> rowMark ys (idx+1)
-
-showCell :: [Cell] -> Int -> IO ()
-showCell [] idx = print idx
-showCell (y:ys) idx | y == Blank = putStr " * " >> showCell ys idx
-                    | y == Black = putStr " O " >> showCell ys idx
-                    | y == White = putStr " X " >> showCell ys idx
-
 showBoard :: Board Cell -> IO ()
-showBoard (Board (x:xs)) = putStr "   " >> colMark (x:xs) 1 >> rowMark (x:xs) 1 >>
-                           putStr "   " >> colMark (x:xs) 1
+showBoard (Board (x:xs)) = 
+    let
+        colMark [] idx = putStrLn ""
+        colMark (y:ys) idx | idx < 10 = do putStr ((show idx) ++ "  ")
+                                           colMark ys (idx+1)
+                           | idx >= 10 = do putStr((show idx) ++ " ")
+                                            colMark ys (idx+1)
+
+        rowMark [] idx = return ()
+        rowMark (y:ys) idx | idx < 10 = do putStr ((show idx) ++ " ")
+                                           showCell y idx
+                                           rowMark ys (idx+1)
+                           | idx >= 10 = do putStr ((show idx) ++ "")
+                                            showCell y idx
+                                            rowMark ys (idx+1)
+
+        showCell [] idx    = print idx
+        showCell (y:ys) idx | y == Blank = do putStr " * "
+                                              showCell ys idx
+                            | y == Black = do putStr " O "
+                                              showCell ys idx
+                            | y == White = do putStr " X "
+                                              showCell ys idx
+    in
+        do
+            putStr "   "
+            colMark (x:xs) 1
+            rowMark (x:xs) 1
+            putStr "   "
+            colMark (x:xs) 1
 
 
--- update the board
 updateBoard :: Board Cell -> Int -> Int -> Player -> Board Cell
-updateBoard (Board x) col row player | player == First = Board (take (row-1) x ++ [newRow] ++ drop row x)      
-                                     | player == Second = Board (take (row-1) x ++ [newRow'] ++ drop row x)
-    Where 
-      newRow = take (col-1) (x !! (row-1)) ++ [Black] ++ drop col (x !! (row-1))
+updateBoard (Board x) col row player = 
+    if player == First then do
+      Board (take (row-1) x ++ [newRow] ++ drop row x)
+    else
+      Board (take (row-1) x ++ [newRow'] ++ drop row x)
+    where
+      newRow  = take (col-1) (x !! (row-1)) ++ [Black] ++ drop col (x !! (row-1))
       newRow' = take (col-1) (x !! (row-1)) ++ [White] ++ drop col (x !! (row-1))
 
 -- check five
@@ -91,66 +106,62 @@ checkList (Board board) x y =
          getULtoDR (fst startUL) (snd startUL) [],
          getURtoDL (fst startUR) (snd startUR) []]
 
+
 -- Check if the input stone is good
 isGood :: Board Cell -> Int -> Int -> Bool
 isGood (Board x) c r = x !! (r-1) !! (c-1) == Blank
 
 
-currentP :: Player -> IO ()
-currentP First  = putStrLn "BLACK's turn: "
-currentP Second = putStrLn "WHITE's turn: "
-
-nextP :: Player -> Player
-nextP First  = Second
-nextP Second = First
-
-checkP :: Player -> Cell
-checkP First = Black
-checkP Second = White
-
 gameLoop :: Board Cell -> Player -> IO ()
 gameLoop (Board x) player = 
     do
       showBoard (Board x)
-      currentP player
+      currentPlayer player
       putStr "Col: "
       col <- getLine
       putStr "Row: "
       row <- getLine
       if isGood (Board x) (read col :: Int) (read row :: Int)
       then do
-       if checkFive (checkList (Board x) (read col :: Int) (read row :: Int)) (checkP player)
+       if checkFive (checkList (Board x) (read col :: Int) (read row :: Int)) (checkPlayer player)
         then do 
           putStrLn "Win"
         else
-         gameLoop (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (nextP player)
+         gameLoop (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (next player)
       else do
       print "Bad Position!!! Please input again."
       gameLoop (Board x) player
+    where
+    currentPlayer First = putStrLn "BLACK's turn: "
+    currentPlayer Second = putStrLn "WHITE's turn: "
+    next First = Second
+    next Second = First
+    checkPlayer First = Black
+    checkPlayer Second = White
 
 -- Add A.I.
 gameLoop' (Board x) player =
     do
       if player == Second then do
         showBoard (Board x)
-        currentP player
+        currentPlayer player
         putStr "Col: "
         col <- getLine
         putStr "Row: "
         row <- getLine
         if isGood (Board x) (read col :: Int) (read row :: Int)
           then do
-            if checkFive (checkList (Board x) (read col :: Int) (read row :: Int)) (checkP player)
+            if checkFive (checkList (Board x) (read col :: Int) (read row :: Int)) (checkPlayer player)
             then do 
               putStrLn "Win"
             else
-              gameLoop' (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (nextP player)
+              gameLoop' (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (next player)
           else do
           print "Bad Position!!! Please input again."
           gameLoop' (Board x) player
       else do
         showBoard (Board x)
-        currentP player
+        currentPlayer player
         col <- randomRIO(1,15) >>= (\x -> return x)
         putStr "Col: "
         print col
@@ -159,10 +170,17 @@ gameLoop' (Board x) player =
         print row
         if isGood (Board x) col row
           then do
-          gameLoop' (updateBoard (Board x) col row player) (nextP player)
+          gameLoop' (updateBoard (Board x) col row player) (next player)
           else do
           print "Bad Position!!! Please input again."
           gameLoop' (Board x) player
+    where
+    currentPlayer First = putStrLn "BLACK's turn: "
+    currentPlayer Second = putStrLn "WHITE's turn: "
+    next First = Second
+    next Second = First
+    checkPlayer First = Black
+    checkPlayer Second = White
 
 
 -- Game begins here
