@@ -3,7 +3,6 @@
 
 module Five where
 import System.Random
---import SimpleAI
 
 data Cell = Black
           | White
@@ -25,42 +24,32 @@ initBoard x = Board (replicate x (replicate x Blank))
 -- If Blank -> *
 -- If Blakc -> O
 -- If White -> X
+colMark :: [[Cell]] -> Int -> IO ()
+colMark [] idx = putStrLn ""
+colMark (y:ys) idx | idx < 10 = putStr ((show idx) ++ "  ") >> colMark ys (idx+1)
+                   | idx >= 10 = putStr ((show idx) ++ " ") >> colMark ys (idx+1)
+
+rowMark :: [[Cell]] -> Int -> IO ()
+rowMark [] idx = return ()
+rowMark (y:ys) idx | idx < 10 = putStr ((show idx) ++ " ") >> showCell y idx >> rowMark ys (idx+1)
+                   | idx >= 10 = putStr ((show idx) ++ "") >> showCell y idx >> rowMark ys (idx+1)
+
+showCell :: [Cell] -> Int -> IO ()
+showCell [] idx = print idx
+showCell (y:ys) idx | y == Blank = putStr " * " >> showCell ys idx
+                    | y == Black = putStr " O " >> showCell ys idx
+                    | y == White = putStr " X " >> showCell ys idx
+
 showBoard :: Board Cell -> IO ()
-showBoard (Board (x:xs)) = 
-    let
-        colMark [] idx = putStrLn ""
-        colMark (y:ys) idx | idx < 10 = do putStr ((show idx) ++ "  ")
-                                           colMark ys (idx+1)
-                           | idx >= 10 = do putStr((show idx) ++ " ")
-                                            colMark ys (idx+1)
-
-        rowMark [] idx = return ()
-        rowMark (y:ys) idx | idx < 10 = do putStr ((show idx) ++ " ")
-                                           showCell y idx
-                                           rowMark ys (idx+1)
-                           | idx >= 10 = do putStr ((show idx) ++ "")
-                                            showCell y idx
-                                            rowMark ys (idx+1)
-
-        showCell [] idx    = print idx
-        showCell (y:ys) idx | y == Blank = do putStr " * "
-                                              showCell ys idx
-                            | y == Black = do putStr " O "
-                                              showCell ys idx
-                            | y == White = do putStr " X "
-                                              showCell ys idx
-    in
-        do
-            putStr "   "
-            colMark (x:xs) 1
-            rowMark (x:xs) 1
-            putStr "   "
-            colMark (x:xs) 1
+showBoard (Board (x:xs)) = putStr "   " >> colMark (x:xs) 1 >> rowMark (x:xs) 1 >>
+                           putStr "   " >> colMark (x:xs) 1
 
 
+-- update the board
 updateBoard :: Board Cell -> Int -> Int -> Player -> Board Cell
 updateBoard (Board x) col row player | player == First = Board (take (row-1) x ++ [newRow] ++ drop row x)      
                                      | player == Second = Board (take (row-1) x ++ [newRow'] ++ drop row x)
+<<<<<<< HEAD
       where
         newRow  = take (col-1) (x !! (row-1)) ++ [Black] ++ drop col (x !! (row-1))
         newRow' = take (col-1) (x !! (row-1)) ++ [White] ++ drop col (x !! (row-1))
@@ -103,6 +92,11 @@ checkList (Board board) x y =
          getCol,
          getULtoDR (fst startUL) (snd startUL) [],
          getURtoDL (fst startUR) (snd startUR) []]
+=======
+    where
+      newRow  = take (col-1) (x !! (row-1)) ++ [Black] ++ drop col (x !! (row-1))
+      newRow' = take (col-1) (x !! (row-1)) ++ [White] ++ drop col (x !! (row-1))
+>>>>>>> 3468dfd67b7d6b862b5153b7e27c57022c3feca6
 
 
 -- Check if the input stone is good
@@ -118,11 +112,14 @@ nextP :: Player -> Player
 nextP First  = Second
 nextP Second = First
 
+<<<<<<< HEAD
 checkP :: Player -> Cell
 checkP First = Black
 checkP Second = White
 
 
+=======
+>>>>>>> 3468dfd67b7d6b862b5153b7e27c57022c3feca6
 gameLoop :: Board Cell -> Player -> IO ()
 gameLoop (Board x) player = 
     do
@@ -134,6 +131,7 @@ gameLoop (Board x) player =
       row <- getLine
       if isGood (Board x) (read col :: Int) (read row :: Int)
       then do
+<<<<<<< HEAD
        if checkFive (checkList (Board x) (read col :: Int) (read row :: Int)) (checkP player)
         then do 
           putStrLn "Win"
@@ -142,6 +140,13 @@ gameLoop (Board x) player =
       else do
       print "Bad Position!!! Please input again."
       gameLoop (Board x) player
+=======
+      gameLoop (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (nextP player)
+      else do
+      print "Bad Position!!! Please input again."
+      gameLoop (Board x) player
+    
+>>>>>>> 3468dfd67b7d6b862b5153b7e27c57022c3feca6
 
 -- Add A.I.
 gameLoop' (Board x) player =
@@ -155,11 +160,15 @@ gameLoop' (Board x) player =
         row <- getLine
         if isGood (Board x) (read col :: Int) (read row :: Int)
           then do
+<<<<<<< HEAD
             if checkFive (checkList (Board x) (read col :: Int) (read row :: Int)) (checkP player)
             then do 
               putStrLn "Win"
             else
               gameLoop' (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (nextP player)
+=======
+          gameLoop' (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (nextP player)
+>>>>>>> 3468dfd67b7d6b862b5153b7e27c57022c3feca6
           else do
           print "Bad Position!!! Please input again."
           gameLoop' (Board x) player
@@ -178,6 +187,10 @@ gameLoop' (Board x) player =
           else do
           print "Bad Position!!! Please input again."
           gameLoop' (Board x) player
+<<<<<<< HEAD
+=======
+
+>>>>>>> 3468dfd67b7d6b862b5153b7e27c57022c3feca6
 
 -- Game begins here
 -- Players set the width and heigh of the board
