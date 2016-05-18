@@ -111,6 +111,18 @@ checkList (Board board) x y =
 isGood :: Board Cell -> Int -> Int -> Bool
 isGood (Board x) c r = x !! (r-1) !! (c-1) == Blank
 
+currentPlayer :: Player -> IO()
+currentPlayer First = putStrLn "BLACK's turn: "
+currentPlayer Second = putStrLn "WHITE's turn: " 
+
+nextPlayer :: Player -> Player
+nextPlayer First = Second
+nextPlayer Second = First
+
+checkPlayer :: Player -> Cell
+checkPlayer First = Black
+checkPlayer Second = White
+
 
 gameLoop :: Board Cell -> Player -> IO ()
 gameLoop (Board x) player = 
@@ -127,17 +139,10 @@ gameLoop (Board x) player =
         then do 
           putStrLn "Win"
         else
-         gameLoop (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (next player)
+         gameLoop (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (nextPlayer player)
       else do
       print "Bad Position!!! Please input again."
       gameLoop (Board x) player
-    where
-    currentPlayer First = putStrLn "BLACK's turn: "
-    currentPlayer Second = putStrLn "WHITE's turn: "
-    next First = Second
-    next Second = First
-    checkPlayer First = Black
-    checkPlayer Second = White
 
 -- Add A.I.
 gameLoop' (Board x) player =
@@ -155,7 +160,7 @@ gameLoop' (Board x) player =
             then do 
               putStrLn "Win"
             else
-              gameLoop' (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (next player)
+              gameLoop' (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (nextPlayer player)
           else do
           print "Bad Position!!! Please input again."
           gameLoop' (Board x) player
@@ -170,17 +175,10 @@ gameLoop' (Board x) player =
         print row
         if isGood (Board x) col row
           then do
-          gameLoop' (updateBoard (Board x) col row player) (next player)
+          gameLoop' (updateBoard (Board x) col row player) (nextPlayer player)
           else do
           print "Bad Position!!! Please input again."
           gameLoop' (Board x) player
-    where
-    currentPlayer First = putStrLn "BLACK's turn: "
-    currentPlayer Second = putStrLn "WHITE's turn: "
-    next First = Second
-    next Second = First
-    checkPlayer First = Black
-    checkPlayer Second = White
 
 
 -- Game begins here
