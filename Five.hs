@@ -175,7 +175,11 @@ gameLoop' (Board x) player =
         print row
         if isGood (Board x) col row
           then do
-          gameLoop' (updateBoard (Board x) col row player) (nextPlayer player)
+            if checkFive (checkList (Board x) (read col :: Int) (read row :: Int)) (checkPlayer player)
+            then do 
+              putStrLn "Win"
+            else
+             gameLoop' (updateBoard (Board x) col row player) (nextPlayer player)
           else do
           print "Bad Position!!! Please input again."
           gameLoop' (Board x) player
