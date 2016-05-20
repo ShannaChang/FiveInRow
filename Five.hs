@@ -3,6 +3,9 @@
 
 module Five where
 import System.Random
+import Data.Char
+import Data.List
+import Control.Monad
 --import SimpleAI
 
 data Cell = Black
@@ -109,7 +112,7 @@ checkList (Board board) x y =
 
 -- Check if the input stone is good
 isGood :: Board Cell -> Int -> Int -> Bool
-isGood (Board x) c r = (getPos (Board x) c r) == Blank 
+isGood (Board x) c r = (getPos (Board x) c r) == Blank
 
 playerHelper :: t -> t -> Player -> t
 playerHelper a _ First = a
@@ -175,7 +178,7 @@ gameLoop' (Board x) player =
         print row
         if isGood (Board x) col row
           then do
-            if checkFive (checkList (Board x) (read col :: Int) (read row :: Int)) (checkPlayer player)
+            if checkFive (checkList (Board x) col row) (checkPlayer player)
             then do 
               putStrLn "Win"
             else
