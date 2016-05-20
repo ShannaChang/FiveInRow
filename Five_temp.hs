@@ -3,6 +3,7 @@
 
 module Five where
 import System.Random
+--import SimpleAI
 
 data Cell = Black
           | White
@@ -67,7 +68,6 @@ updateBoard (Board x) col row player =
       newRow  = take (col-1) (x !! (row-1)) ++ [Black] ++ drop col (x !! (row-1))
       newRow' = take (col-1) (x !! (row-1)) ++ [White] ++ drop col (x !! (row-1))
 
-
 -- check five
 checkFive :: [[Cell]] -> Cell -> Bool
 checkFive xs x | xs == [] = False
@@ -93,25 +93,36 @@ checkList (Board board) x y =
 
         startUL | x < y        = (1, y-x+1)
                 | otherwise    = (x-y+1, 1)
-        --startUR | width-x < y  = (width, y-(width-x-1))
-        --        | otherwise    = (x+y-1, 1)
+        startUR | width-x < y  = (width-1, y-(width-x))
+                | otherwise    = (x+y-1, 1)
 
         getULtoDR x y lst | x < width && y < height = getULtoDR (x+1) (y+1) (lst ++ [(getPos (Board board) x y)])
                           | otherwise               = lst
-
-        --getURtoDL x y lst | 1 < x && y < height = getURtoDL (x-1) (y+1) (lst ++ [(getPos (Board board) x y)])
-        --                  | otherwise            = lst
+        getURtoDL x y lst | 1 < x && y < height = getURtoDL (x-1) (y+1) (lst ++ [(getPos (Board board) x y)])
+                          | otherwise            = lst
     in
         [getRow,
          getCol,
-         getULtoDR (fst startUL) (snd startUL) []]
-         --getURtoDL (fst startUR) (snd startUR) []]
+         getULtoDR (fst startUL) (snd startUL) [],
+         getURtoDL (fst startUR) (snd startUR) []]
 
 
 -- Check if the input stone is good
 isGood :: Board Cell -> Int -> Int -> Bool
-isGood (Board x) c r = x !! (r-1) !! (c-1) == Blank
+isGood (Board x) c r = x !! (r-1) !! (c-1) == Blank 
 
+playerHelper :: t -> t -> Player -> t
+playerHelper a _ First = a
+playerHelper _ b Second = b
+
+currentPlayer :: Player -> IO()
+currentPlayer = playerHelper (putStrLn "BLACK's turn: ") (putStrLn "WHITE's turn: ")
+
+nextPlayer :: Player -> Player
+nextPlayer = playerHelper Second First 
+
+checkPlayer :: Player -> Cell
+checkPlayer = playerHelper Black White
 
 gameLoop :: Board Cell -> Player -> IO ()
 gameLoop (Board x) player = 
@@ -124,21 +135,14 @@ gameLoop (Board x) player =
       row <- getLine
       if isGood (Board x) (read col :: Int) (read row :: Int)
       then do
-        if checkFive (checkList (Board x) (read col :: Int) (read row :: Int)) (checkPlayer player)
+       if checkFive (checkList (Board x) (read col :: Int) (read row :: Int)) (checkPlayer player)
         then do 
           putStrLn "Win"
         else
-         gameLoop (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (next player)
+         gameLoop (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (nextPlayer player)
       else do
-       print "Bad Position!!! Please input again."
-       gameLoop (Board x) player
-    where
-    currentPlayer First = putStrLn "BLACK's turn: "
-    currentPlayer Second = putStrLn "WHITE's turn: "
-    next First = Second
-    next Second = First
-    checkPlayer First = Black
-    checkPlayer Second = White
+      print "Bad Position!!! Please input again."
+      gameLoop (Board x) player
 
 -- Add A.I.
 gameLoop' (Board x) player =
@@ -152,7 +156,11 @@ gameLoop' (Board x) player =
         row <- getLine
         if isGood (Board x) (read col :: Int) (read row :: Int)
           then do
-          gameLoop' (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (next player)
+            if checkFive (checkList (Board x) (read col :: Int) (read row :: Int)) (checkPlayer player)
+            then do 
+              putStrLn "Win"
+            else
+              gameLoop' (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (nextPlayer player)
           else do
           print "Bad Position!!! Please input again."
           gameLoop' (Board x) player
@@ -167,15 +175,10 @@ gameLoop' (Board x) player =
         print row
         if isGood (Board x) col row
           then do
-          gameLoop' (updateBoard (Board x) col row player) (next player)
+          gameLoop' (updateBoard (Board x) col row player) (nextPlayer player)
           else do
           print "Bad Position!!! Please input again."
           gameLoop' (Board x) player
-    where
-    currentPlayer First = putStrLn "BLACK's turn: "
-    currentPlayer Second = putStrLn "WHITE's turn: "
-    next First = Second
-    next Second = First
 
 
 -- Game begins here

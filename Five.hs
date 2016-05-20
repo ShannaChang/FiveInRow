@@ -109,20 +109,20 @@ checkList (Board board) x y =
 
 -- Check if the input stone is good
 isGood :: Board Cell -> Int -> Int -> Bool
-isGood (Board x) c r = x !! (r-1) !! (c-1) == Blank
+isGood (Board x) c r = x !! (r-1) !! (c-1) == Blank 
+
+playerHelper :: t -> t -> Player -> t
+playerHelper a _ First = a
+playerHelper _ b Second = b
 
 currentPlayer :: Player -> IO()
-currentPlayer First = putStrLn "BLACK's turn: "
-currentPlayer Second = putStrLn "WHITE's turn: " 
+currentPlayer = playerHelper (putStrLn "BLACK's turn: ") (putStrLn "WHITE's turn: ")
 
 nextPlayer :: Player -> Player
-nextPlayer First = Second
-nextPlayer Second = First
+nextPlayer = playerHelper Second First 
 
 checkPlayer :: Player -> Cell
-checkPlayer First = Black
-checkPlayer Second = White
-
+checkPlayer = playerHelper Black White
 
 gameLoop :: Board Cell -> Player -> IO ()
 gameLoop (Board x) player = 
