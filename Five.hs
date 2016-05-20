@@ -81,7 +81,7 @@ checkFive xs x | xs == [] = False
         checkLoop (head xs) 1
 
 getPos :: Board Cell -> Int -> Int -> Cell
-getPos (Board board) x y = board !! (y-1) !! (x-1)
+getPos (Board x) c r = x !! (r-1) !! (c-1)
 
 checkList :: Board Cell -> Int -> Int -> [[Cell]]
 checkList (Board board) x y =
@@ -109,7 +109,7 @@ checkList (Board board) x y =
 
 -- Check if the input stone is good
 isGood :: Board Cell -> Int -> Int -> Bool
-isGood (Board x) c r = x !! (r-1) !! (c-1) == Blank 
+isGood (Board x) c r = (getPos (Board x) c r) == Blank 
 
 playerHelper :: t -> t -> Player -> t
 playerHelper a _ First = a
