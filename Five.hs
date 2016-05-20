@@ -3,8 +3,6 @@
 
 module Five where
 import System.Random
-import Data.Char
-import Data.List
 import Control.Monad
 --import SimpleAI
 
@@ -101,6 +99,7 @@ checkList (Board board) x y =
 
         getULtoDR x y lst | x < width && y < height = getULtoDR (x+1) (y+1) (lst ++ [(getPos (Board board) x y)])
                           | otherwise               = lst
+        
         getURtoDL x y lst | 1 < x && y < height = getURtoDL (x-1) (y+1) (lst ++ [(getPos (Board board) x y)])
                           | otherwise            = lst
     in
