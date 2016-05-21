@@ -4,6 +4,8 @@
 module Five where
 import System.Random
 import Control.Monad
+import Control.Monad.Trans
+import Control.Monad.Trans.Maybe
 --import SimpleAI
 
 data Cell = Black
@@ -126,15 +128,42 @@ nextPlayer = playerHelper Second First
 checkPlayer :: Player -> Cell
 checkPlayer = playerHelper Black White
 
+getCol :: IO String
+getCol = do
+  putStr "Col: "
+  getLine
+
+getRow :: IO String
+getRow = do 
+  putStr "Row: "
+  getLine
+
+--getGoodPos :: Board Cell -> Player -> MaybeT IO String
+--getGoodPos (Board x) player = do
+--  currentPlayer player
+--  col <- lift getCol
+--  row <- lift getRow
+--  guard (isGood (Board x) (read col :: Int) (read row :: Int))
+--  if checkFive (checkList (Board x) (read col :: Int) (read row :: Int)) (checkPlayer player)
+--  then do 
+--    return "Win"
+--  else
+--   gameLoop (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (nextPlayer player)
+--  return "Good Position"
+
+--tryAgain :: MaybeT IO String
+--tryAgain = do 
+--  lift $ putStrLn "Bad Position!!! Please input again."
+--  getGoodPos
+
+
 gameLoop :: Board Cell -> Player -> IO ()
 gameLoop (Board x) player = 
     do
       showBoard (Board x)
       currentPlayer player
-      putStr "Col: "
-      col <- getLine
-      putStr "Row: "
-      row <- getLine
+      col <- getCol
+      row <- getRow
       if isGood (Board x) (read col :: Int) (read row :: Int)
       then do
        if checkFive (checkList (Board x) (read col :: Int) (read row :: Int)) (checkPlayer player)
@@ -152,10 +181,8 @@ gameLoop' (Board x) player =
       if player == Second then do
         showBoard (Board x)
         currentPlayer player
-        putStr "Col: "
-        col <- getLine
-        putStr "Row: "
-        row <- getLine
+        col <- getCol
+        row <- getRow
         if isGood (Board x) (read col :: Int) (read row :: Int)
           then do
             if checkFive (checkList (Board x) (read col :: Int) (read row :: Int)) (checkPlayer player)
