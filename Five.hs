@@ -138,25 +138,6 @@ getRow = do
   putStr "Row: "
   getLine
 
---getGoodPos :: Board Cell -> Player -> MaybeT IO String
---getGoodPos (Board x) player = do
---  currentPlayer player
---  col <- lift getCol
---  row <- lift getRow
---  guard (isGood (Board x) (read col :: Int) (read row :: Int))
---  if checkFive (checkList (Board x) (read col :: Int) (read row :: Int)) (checkPlayer player)
---  then do 
---    return "Win"
---  else
---   gameLoop (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (nextPlayer player)
---  return "Good Position"
-
---tryAgain :: MaybeT IO String
---tryAgain = do 
---  lift $ putStrLn "Bad Position!!! Please input again."
---  getGoodPos
-
-
 gameLoop :: Board Cell -> Player -> IO ()
 gameLoop (Board x) player = 
     do
