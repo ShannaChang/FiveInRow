@@ -15,7 +15,6 @@ data Cell = Black
 
 data Player = First
             | Second
-            | Robot
   deriving (Eq,Show)
 
 data Board a = Board [[a]] deriving (Show)
@@ -148,8 +147,9 @@ gameLoop (Board x) player =
       if isGood (Board x) (read col :: Int) (read row :: Int)
       then do
        if checkFive (checkList (Board x) (read col :: Int) (read row :: Int)) (checkPlayer player)
-        then do 
-          putStrLn "Win"
+        then do
+          showBoard (updateBoard (Board x) (read col :: Int) (read row :: Int) player)
+          putStrLn "You Win!!!"
         else
          gameLoop (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (nextPlayer player)
       else do
@@ -167,8 +167,9 @@ gameLoop' (Board x) player =
         if isGood (Board x) (read col :: Int) (read row :: Int)
           then do
             if checkFive (checkList (Board x) (read col :: Int) (read row :: Int)) (checkPlayer player)
-            then do 
-              putStrLn "Win"
+            then do
+              showBoard (updateBoard (Board x) (read col :: Int) (read row :: Int) player)
+              putStrLn "You Win!!!"
             else
               gameLoop' (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (nextPlayer player)
           else do
@@ -186,8 +187,9 @@ gameLoop' (Board x) player =
         if isGood (Board x) col row
           then do
             if checkFive (checkList (Board x) col row) (checkPlayer player)
-            then do 
-              putStrLn "Win"
+            then do
+              showBoard (updateBoard (Board x) col row player)
+              putStrLn "You Win!!!"
             else
              gameLoop' (updateBoard (Board x) col row player) (nextPlayer player)
           else do
