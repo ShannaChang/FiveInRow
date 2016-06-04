@@ -6,7 +6,6 @@ import System.Random
 import Control.Monad
 import Control.Monad.Trans
 import Control.Monad.Trans.Maybe
---import SimpleAI
 
 data Cell = Black
           | White
@@ -61,7 +60,7 @@ showBoard (Board (x:xs)) =
             putStr "   "
             colMark (x:xs) 1
 
-
+-- update the current status of the board
 updateBoard :: Board Cell -> Int -> Int -> Player -> Board Cell
 updateBoard (Board x) col row player = 
     if (player == First) || (player == AI) then do
@@ -72,7 +71,7 @@ updateBoard (Board x) col row player =
       newRow  = take (col-1) (x !! (row-1)) ++ [Black] ++ drop col (x !! (row-1))
       newRow' = take (col-1) (x !! (row-1)) ++ [White] ++ drop col (x !! (row-1))
 
--- check five
+-- check whether the player make a coherently sequence of five stones 
 checkFive :: [[Cell]] -> Cell -> Bool
 checkFive xs x | xs == [] = False
                | otherwise =
@@ -84,9 +83,11 @@ checkFive xs x | xs == [] = False
       in
         checkLoop (head xs) 1
 
+
 getPos :: Board Cell -> Int -> Int -> Cell
 getPos (Board x) c r = x !! (r-1) !! (c-1)
 
+-- check the board status
 checkList :: Board Cell -> Int -> Int -> [[Cell]]
 checkList (Board board) x y =
     let
@@ -112,10 +113,11 @@ checkList (Board board) x y =
          getURtoDL (fst startUR) (snd startUR) []]
 
 
--- Check if the input stone is good
+-- Check if the input stone is valid
 isGood :: Board Cell -> Int -> Int -> Bool
 isGood (Board x) c r = (getPos (Board x) c r) == Blank
 
+-- a higher order function for the currentPlayer checkPlayer nextPlayer function 
 playerHelper :: t -> t -> t -> t -> Player -> t
 playerHelper a _ _ _ First = a
 playerHelper _ b _ _ Second = b
@@ -131,16 +133,19 @@ checkPlayer = playerHelper Black White Black White
 nextPlayer :: Player -> Player
 nextPlayer = playerHelper Second First PlayerAI AI 
 
+-- get column position
 getCol :: IO String
 getCol = do
   putStr "Col: "
   getLine
 
+-- get row position
 getRow :: IO String
 getRow = do 
   putStr "Row: "
   getLine
 
+-- A function for every loop 
 loopfunc :: Board Cell -> Int -> Int -> Player -> IO ()
 loopfunc (Board x) col row player = 
     do
@@ -156,6 +161,7 @@ loopfunc (Board x) col row player =
         print "Bad Position!!! Please input again."
         gameLoop (Board x) player
 
+-- A loop for generate every game 
 gameLoop :: Board Cell -> Player -> IO ()
 gameLoop (Board x) player =
     do
@@ -177,7 +183,7 @@ gameLoop (Board x) player =
         loopfunc (Board x) col row player
 
 -- Game begins here
--- Players set the width and heigh of the board
+-- Players choose whether they want to play with AI or real player
 main :: IO ()
 main = do
     print "Do you want to play with A.I.? (yes/no)"
