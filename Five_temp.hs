@@ -3,6 +3,9 @@
 
 module Five where
 import System.Random
+import Control.Monad
+import Control.Monad.Trans
+import Control.Monad.Trans.Maybe
 --import SimpleAI
 
 data Cell = Black
@@ -12,7 +15,6 @@ data Cell = Black
 
 data Player = First
             | Second
-            | Robot
   deriving (Eq,Show)
 
 data Board a = Board [[a]] deriving (Show)
@@ -81,7 +83,7 @@ checkFive xs x | xs == [] = False
         checkLoop (head xs) 1
 
 getPos :: Board Cell -> Int -> Int -> Cell
-getPos (Board board) x y = board !! (y-1) !! (x-1)
+getPos (Board x) c r = x !! (r-1) !! (c-1)
 
 checkList :: Board Cell -> Int -> Int -> [[Cell]]
 checkList (Board board) x y =
@@ -98,6 +100,7 @@ checkList (Board board) x y =
 
         getULtoDR x y lst | x < width && y < height = getULtoDR (x+1) (y+1) (lst ++ [(getPos (Board board) x y)])
                           | otherwise               = lst
+        
         getURtoDL x y lst | 1 < x && y < height = getURtoDL (x-1) (y+1) (lst ++ [(getPos (Board board) x y)])
                           | otherwise            = lst
     in
@@ -109,7 +112,7 @@ checkList (Board board) x y =
 
 -- Check if the input stone is good
 isGood :: Board Cell -> Int -> Int -> Bool
-isGood (Board x) c r = x !! (r-1) !! (c-1) == Blank 
+isGood (Board x) c r = (getPos (Board x) c r) == Blank
 
 playerHelper :: t -> t -> Player -> t
 playerHelper a _ First = a
@@ -124,20 +127,47 @@ nextPlayer = playerHelper Second First
 checkPlayer :: Player -> Cell
 checkPlayer = playerHelper Black White
 
+getCol :: IO String
+getCol = do
+  putStr "Col: "
+  getLine
+
+getRow :: IO String
+getRow = do 
+  putStr "Row: "
+  getLine
+
+loopfunc :: Board Cell -> Int -> Int -> Player -> IO ()
+loopfunc (Board x) col row player = 
+    do
+      if isGood (Board x) col row
+      then do
+        if checkFive (checkList (Board x) col row) (checkPlayer player)
+         then do
+          showBoard (updateBoard (Board x) col row player)
+          putStrLn "You Win!!!"
+        else
+          gameLoop' (updateBoard (Board x) col row player) (nextPlayer player)
+      else do
+        print "Bad Position!!! Please input again."
+        gameLoop' (Board x) player
+
 gameLoop :: Board Cell -> Player -> IO ()
 gameLoop (Board x) player = 
     do
       showBoard (Board x)
       currentPlayer player
-      putStr "Col: "
-      col <- getLine
-      putStr "Row: "
-      row <- getLine
+      c <- getCol
+      r <- getRow
+      let col = read c :: Int
+      let row = read r :: Int 
+      loopfunc (Board x) col row player
       if isGood (Board x) (read col :: Int) (read row :: Int)
       then do
        if checkFive (checkList (Board x) (read col :: Int) (read row :: Int)) (checkPlayer player)
-        then do 
-          putStrLn "Win"
+        then do
+          showBoard (updateBoard (Board x) (read col :: Int) (read row :: Int) player)
+          putStrLn "You Win!!!"
         else
          gameLoop (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (nextPlayer player)
       else do
@@ -147,39 +177,24 @@ gameLoop (Board x) player =
 -- Add A.I.
 gameLoop' (Board x) player =
     do
+      showBoard (Board x)
+      currentPlayer player
       if player == Second then do
-        showBoard (Board x)
-        currentPlayer player
-        putStr "Col: "
-        col <- getLine
-        putStr "Row: "
-        row <- getLine
-        if isGood (Board x) (read col :: Int) (read row :: Int)
-          then do
-            if checkFive (checkList (Board x) (read col :: Int) (read row :: Int)) (checkPlayer player)
-            then do 
-              putStrLn "Win"
-            else
-              gameLoop' (updateBoard (Board x) (read col :: Int) (read row :: Int) player) (nextPlayer player)
-          else do
-          print "Bad Position!!! Please input again."
-          gameLoop' (Board x) player
+        c <- getCol
+        r <- getRow
+        let col = read c :: Int
+        let row = read r :: Int 
+        print col
+        print row
+        loopfunc (Board x) col row player
       else do
-        showBoard (Board x)
-        currentPlayer player
         col <- randomRIO(1,15) >>= (\x -> return x)
         putStr "Col: "
         print col
         row <- randomRIO(1,15) >>= (\x -> return x)
         putStr "Row: "
         print row
-        if isGood (Board x) col row
-          then do
-          gameLoop' (updateBoard (Board x) col row player) (nextPlayer player)
-          else do
-          print "Bad Position!!! Please input again."
-          gameLoop' (Board x) player
-
+        loopfunc (Board x) col row player
 
 -- Game begins here
 -- Players set the width and heigh of the board
