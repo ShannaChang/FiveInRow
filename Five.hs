@@ -64,12 +64,8 @@ showBoard (Board (x:xs)) =
 
 updateBoard :: Board Cell -> Int -> Int -> Player -> Board Cell
 updateBoard (Board x) col row player = 
-    if player == First then do
+    if (player == First) || (player == AI) then do
       Board (take (row-1) x ++ [newRow] ++ drop row x)
-    else if player == AI then do 
-      Board (take (row-1) x ++ [newRow] ++ drop row x)
-    else if player == PlayerAI then do 
-      Board (take (row-1) x ++ [newRow'] ++ drop row x)
     else
       Board (take (row-1) x ++ [newRow'] ++ drop row x)
     where
