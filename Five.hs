@@ -133,17 +133,30 @@ checkPlayer = playerHelper Black White Black White
 nextPlayer :: Player -> Player
 nextPlayer = playerHelper Second First PlayerAI AI 
 
+-- Check input is valid input
+isNumber :: String -> Bool
+isNumber str =
+    case (reads str) :: [(Double, String)] of
+      [(_, "")] -> True
+      _         -> False
+
 -- get column position
 getCol :: IO String
 getCol = do
   putStr "Col: "
-  getLine
+  c <- getLine
+  if isNumber c 
+    then return c
+    else getCol
 
 -- get row position
 getRow :: IO String
-getRow = do 
+getRow = do
   putStr "Row: "
-  getLine
+  c <- getLine
+  if isNumber c 
+    then return c
+    else getRow
 
 -- A function for every loop 
 loopfunc :: Board Cell -> Int -> Int -> Player -> IO ()
@@ -186,12 +199,12 @@ gameLoop (Board x) player =
 -- Players choose whether they want to play with AI or real player
 main :: IO ()
 main = do
-    print "Do you want to play with A.I.? (yes/no)"
+    print "Do you want to play with A.I.? (Y/N)"
     s <- getLine
-    if s == "yes"
+    if s == "Y"
       then do
       gameLoop (initBoard 15) AI
-      else if s == "no"
+      else if s == "N"
         then do
         gameLoop (initBoard 15) First
         else do
