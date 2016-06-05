@@ -81,11 +81,11 @@
    14 *  *  *  *  *  *  *  *  *  *  *  *  *  *  * 14
    15 *  *  *  *  *  *  *  *  *  *  *  *  *  *  * 15
       1  2  3  4  5  6  7  8  9  10 11 12 13 14 15
-   ```
+   
 
-### End of Game
+   End of Game
    Any player get a sequesnce of five stone will win the game.
-   ```
+   
       1  2  3  4  5  6  7  8  9  10 11 12 13 14 15
    1  O  *  *  *  *  *  *  *  *  *  *  *  *  *  * 1
    2  *  *  *  *  *  *  *  *  *  *  *  *  *  *  * 2
