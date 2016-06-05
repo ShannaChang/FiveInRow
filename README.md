@@ -27,9 +27,9 @@
 *  Whoever get a sequence of five stone will win the game. 
 
 ### Execute
-    1. [Download](https://github.com/ShannaChang/FiveInRow.git) the recent version of Five.hs
-    2. Use ghci Five.hs to run the file.
-    3. Type "main". 
+1. [Download](https://github.com/ShannaChang/FiveInRow.git) the recent version of Five.hs
+2. Use ghci Five.hs to run the file.
+3. Type "main". 
 
 ### Result
 
