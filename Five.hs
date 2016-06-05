@@ -147,7 +147,9 @@ getCol = do
   c <- getLine
   if isNumber c 
     then return c
-    else getCol
+    else do 
+      putStrLn "Please enter a valid position."
+      getCol
 
 -- get row position
 getRow :: IO String
@@ -156,7 +158,9 @@ getRow = do
   c <- getLine
   if isNumber c 
     then return c
-    else getRow
+    else do
+      putStrLn "Please enter a valid position." 
+      getRow
 
 -- A function for every loop 
 loopfunc :: Board Cell -> Int -> Int -> Player -> IO ()
