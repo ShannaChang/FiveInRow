@@ -1,23 +1,39 @@
-# CS583 Project: Five in a Row
+# Five in a Row
 
 ### Contributor
 * Xu Zheng (zhengxu) 
 * Tien-Lung Chang (changti)
 
-### Description
+### Overview
 
    Our project is to implement board game called “Five in a Row” (which is 
-   also known as “Gomoku” in Japanese). It is a two players game that is 
+   also known as “Gomoku” in Japanese). It is a two players game that is  
    suitable for all ages. The principle for this game is the first player 
    who make a coherently sequence of five stones will win the game. The 
    sequence can be vertically, horizontally or diagonally. The user can 
    choose to play against another user or the A.I.. The program will check 
    if there is a winner at the end of every turn.
 
-### Execute
+### Quick links
+*  [Code](https://github.com/ShannaChang/FiveInRow/blob/master/Five.hs)
+*  [Download](https://github.com/ShannaChang/FiveInRow.git)
+*  [Project Report](https://github.com/ShannaChang/FiveInRow/blob/master/Report_1.0.docx)
 
-   To run our project, just load "Five.hs" then input "main". There are
-   some example inputs and results shown as below:
+### Quick guide
+*  The game start from the selection of playing with AI or not.
+*  The board will update every round, so that you can get the latest board and make a decision.
+*  If you input a invalid (ex: a char or a space), you need to enter a number again.
+*  Once you put a stone on the board, you will no longer to change the position.
+*  Whoever get a sequence of five stone will win the game. 
+
+### Execute
+    1. [Download](https://github.com/ShannaChang/FiveInRow.git) the recent version of Five.hs
+    2. Use ghci Five.hs to run the file.
+    3. Type "main". 
+
+### Result
+
+   After run our project, there are some example inputs and results shown as below:
 
    ```
    >> ghci Five.hs
@@ -83,8 +99,8 @@
       1  2  3  4  5  6  7  8  9  10 11 12 13 14 15
    ```   
 
-   End of Game
    Any player get a sequesnce of five stone will win the game.
+
    ```
       1  2  3  4  5  6  7  8  9  10 11 12 13 14 15
    1  O  *  *  *  *  *  *  *  *  *  *  *  *  *  * 1
