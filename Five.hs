@@ -3,19 +3,18 @@
 
 module Five where
 import System.Random
-import Control.Monad
-import Control.Monad.Trans
-import Control.Monad.Trans.Maybe
 
 data Cell = Black
           | White
           | Blank
   deriving (Eq,Show)
 
-data Player = First
-            | Second
-            | AI
-            | PlayerAI
+data Player = Human Cell
+            | AI    Cell
+  deriving (Eq,Show)
+
+data Mode = Single
+          | Duo
   deriving (Eq,Show)
 
 data Board a = Board [[a]] deriving (Show)
@@ -62,13 +61,17 @@ showBoard (Board (x:xs)) =
 
 -- update the current status of the board
 updateBoard :: Board Cell -> Int -> Int -> Player -> Board Cell
-updateBoard (Board x) col row player = 
-    if (player == First) || (player == AI) then do
-      Board (take (row-1) x ++ [newRow] ++ drop row x)
-    else
-      Board (take (row-1) x ++ [newRow'] ++ drop row x)
+updateBoard (Board x) col row (Human Black ) = Board (take (row-1) x ++ [newRow] ++ drop row x)
     where
       newRow  = take (col-1) (x !! (row-1)) ++ [Black] ++ drop col (x !! (row-1))
+updateBoard (Board x) col row (Human White) = Board (take (row-1) x ++ [newRow'] ++ drop row x)
+    where
+      newRow' = take (col-1) (x !! (row-1)) ++ [White] ++ drop col (x !! (row-1))
+updateBoard (Board x) col row (AI Black ) = Board (take (row-1) x ++ [newRow] ++ drop row x)
+    where
+      newRow  = take (col-1) (x !! (row-1)) ++ [Black] ++ drop col (x !! (row-1))
+updateBoard (Board x) col row (AI White) = Board (take (row-1) x ++ [newRow'] ++ drop row x)
+    where
       newRow' = take (col-1) (x !! (row-1)) ++ [White] ++ drop col (x !! (row-1))
 
 -- check whether the player make a coherently sequence of five stones 
@@ -118,20 +121,25 @@ isGood :: Board Cell -> Int -> Int -> Bool
 isGood (Board x) c r = (getPos (Board x) c r) == Blank
 
 -- a higher order function for the currentPlayer checkPlayer nextPlayer function 
-playerHelper :: t -> t -> t -> t -> Player -> t
-playerHelper a _ _ _ First = a
-playerHelper _ b _ _ Second = b
-playerHelper _ _ c _ AI = c
-playerHelper _ _ _ d PlayerAI = d
+playerHelper :: t -> t -> Player -> t
+playerHelper a _ ( Human Black ) = a
+playerHelper _ b ( Human White) = b
+playerHelper a _ ( AI Black ) = a
+playerHelper _ b ( AI White) = b
 
 currentPlayer :: Player -> IO()
-currentPlayer = playerHelper (putStrLn "BLACK's turn: ") (putStrLn "WHITE's turn: ") (putStrLn "BLACK's turn: ") (putStrLn "WHITE's turn: ")
+currentPlayer = playerHelper (putStrLn "BLACK's turn: ") (putStrLn "WHITE's turn: ")
 
 checkPlayer :: Player -> Cell
-checkPlayer = playerHelper Black White Black White
+checkPlayer = playerHelper Black White
 
-nextPlayer :: Player -> Player
-nextPlayer = playerHelper Second First PlayerAI AI 
+nextPlayer :: Player -> Mode -> Player
+nextPlayer (Human o) Duo    = playerHelper (Human White) (Human Black) (Human o)
+nextPlayer (Human Black) Single = playerHelper (AI White) (Human Black) (Human Black)
+nextPlayer (Human White) Single = playerHelper (Human White) (AI Black) (Human White)
+
+nextPlayer (AI Black) _ = playerHelper (Human White) (AI Black) (AI Black)
+nextPlayer (AI White) _ = playerHelper (AI White) (Human Black) (AI White)
 
 -- Check input is valid input
 isNumber :: String -> Bool
@@ -163,8 +171,8 @@ getRow = do
       getRow
 
 -- A function for every loop 
-loopfunc :: Board Cell -> Int -> Int -> Player -> IO ()
-loopfunc (Board x) col row player = 
+loopfunc :: Board Cell -> Int -> Int -> Player -> Mode -> IO ()
+loopfunc (Board x) col row player m = 
     do
       if isGood (Board x) col row
       then do
@@ -173,31 +181,32 @@ loopfunc (Board x) col row player =
           showBoard (updateBoard (Board x) col row player)
           putStrLn "You Win!!!"
         else
-          gameLoop (updateBoard (Board x) col row player) (nextPlayer player)
+          gameLoop (updateBoard (Board x) col row player) (nextPlayer player m) m
       else do
         print "Bad Position!!! Please input again."
-        gameLoop (Board x) player
+        gameLoop (Board x) player m
 
 -- A loop for generate every game 
-gameLoop :: Board Cell -> Player -> IO ()
-gameLoop (Board x) player =
-    do
-      showBoard (Board x)
-      currentPlayer player
-      if player == AI then do
-        col <- randomRIO(1,15) >>= (\x -> return x)
-        putStr "Col: "
-        print col
-        row <- randomRIO(1,15) >>= (\x -> return x)
-        putStr "Row: "
-        print row
-        loopfunc (Board x) col row player
-      else do 
-        c <- getCol
-        r <- getRow
-        let col = read c :: Int
-        let row = read r :: Int 
-        loopfunc (Board x) col row player
+gameLoop :: Board Cell -> Player -> Mode -> IO ()
+gameLoop (Board x) (AI o) m = 
+  do showBoard (Board x)
+     currentPlayer (AI o)
+     col <- randomRIO(1,15) >>= (\x -> return x)
+     putStr "Col: "
+     print col
+     row <- randomRIO(1,15) >>= (\x -> return x)
+     putStr "Row: "
+     print row
+     loopfunc (Board x) col row (AI o) m
+
+gameLoop (Board x) (Human o) m =
+  do showBoard (Board x)
+     currentPlayer (Human o)
+     c <- getCol
+     r <- getRow
+     let col = read c :: Int
+     let row = read r :: Int
+     loopfunc (Board x) col row (Human o) m
 
 -- Game begins here
 -- Players choose whether they want to play with AI or real player
@@ -207,9 +216,9 @@ main = do
     s <- getLine
     if s == "y"
       then do
-      gameLoop (initBoard 15) AI
+      gameLoop (initBoard 15) (AI Black) Single
       else if s == "n"
         then do
-        gameLoop (initBoard 15) First
+        gameLoop (initBoard 15) (Human Black) Duo
         else do
           main
