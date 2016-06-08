@@ -6,13 +6,7 @@
 
 ### Overview
 
-   Our project is to implement board game called “Five in a Row” (which is 
-   also known as “Gomoku” in Japanese). It is a two players game that is  
-   suitable for all ages. The principle for this game is the first player 
-   who make a coherently sequence of five stones will win the game. The 
-   sequence can be vertically, horizontally or diagonally. The user can 
-   choose to play against another user or the A.I.. The program will check 
-   if there is a winner at the end of every turn.
+Our project is to implement board game called “Five in a Row” (which is also known as “Gomoku” in Japanese). It is a two players game that is suitable for all ages. The principle for this game is the first player who make a coherently sequence of five stones will win the game. The sequence can be vertically, horizontally or diagonally. The user can choose to play against another user or the A.I.. The program will check if there is a winner at the end of every turn.
 
 ### Quick links
 *  [Code](https://github.com/ShannaChang/FiveInRow/blob/master/Five.hs)
@@ -20,11 +14,11 @@
 *  [Project Report](https://github.com/ShannaChang/FiveInRow/blob/master/Report_1.0.docx)
 
 ### Quick guide
-*  The game start from the selection of playing with AI or not.
-*  The board will update every round, so that you can get the latest board and make a decision.
-*  If you input a invalid (ex: a char or a space), you need to enter a number again.
-*  Once you put a stone on the board, you will no longer to change the position.
-*  Whoever get a sequence of five stone will win the game. 
+*  The game starts from the selection of playing with AI or not.
+*  The board will update at the end of every round, so that you can get the latest board and make a decision.
+*  If you input is invalid (ex: a char or a space), you need to enter a number again.
+*  Once you put a stone on the board, you will no longer to change its position.
+*  Whoever get a sequence of five stone first will win the game.
 
 ### Execute
 1. [Download](https://github.com/ShannaChang/FiveInRow.git) the recent version of Five.hs
@@ -37,9 +31,9 @@
 
    ```
    >> ghci Five.hs
-   >> *Five> main
-   "Do you want to play with A.I.? (Y/N)"
-   Y
+   *Five> main
+   "Do you want to play with A.I.? (y/n)"
+   y
       1  2  3  4  5  6  7  8  9  10 11 12 13 14 15
    1  *  *  *  *  *  *  *  *  *  *  *  *  *  *  * 1
    2  *  *  *  *  *  *  *  *  *  *  *  *  *  *  * 2
@@ -99,7 +93,7 @@
       1  2  3  4  5  6  7  8  9  10 11 12 13 14 15
    ```   
 
-   Any player get a sequesnce of five stone will win the game.
+   Any player get a sequesnce of five stone first will win the game.
 
    ```
       1  2  3  4  5  6  7  8  9  10 11 12 13 14 15

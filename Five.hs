@@ -203,12 +203,12 @@ gameLoop (Board x) player =
 -- Players choose whether they want to play with AI or real player
 main :: IO ()
 main = do
-    print "Do you want to play with A.I.? (Y/N)"
+    print "Do you want to play with A.I.? (y/n)"
     s <- getLine
-    if s == "Y"
+    if s == "y"
       then do
       gameLoop (initBoard 15) AI
-      else if s == "N"
+      else if s == "n"
         then do
         gameLoop (initBoard 15) First
         else do
