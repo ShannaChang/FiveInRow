@@ -194,17 +194,22 @@ gameLoop (Board x) (Human o) m =
      let row = read r :: Int
      loopfunc (Board x) col row (Human o) m
 
+-- Set the game mode according to the input
+whichMode :: String -> IO ()
+whichMode s
+    | s == "1"  = gameLoop (initBoard 15) (AI Black)    Single
+    | s == "2"  = gameLoop (initBoard 15) (Human Black) Single
+    | s == "3"  = gameLoop (initBoard 15) (Human Black) Duo
+    | otherwise = main
+
 -- Game begins here
 -- Players choose whether they want to play with AI or real player
 main :: IO ()
 main = do
-    print "Do you want to play with A.I.? (y/n)"
+    putStrLn "Please choose one mode."
+    putStrLn "1: Play against AI(Black)"
+    putStrLn "2: Play against AI(White)"
+    putStrLn "3: Play against another player"
+    putStr   "Enter the mode number you choose (1/2/3): "
     s <- getLine
-    if s == "y"
-      then do
-      gameLoop (initBoard 15) (AI Black) Single
-      else if s == "n"
-        then do
-        gameLoop (initBoard 15) (Human Black) Duo
-        else do
-          main
+    whichMode s
