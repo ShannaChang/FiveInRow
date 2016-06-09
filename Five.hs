@@ -203,7 +203,7 @@ whichMode s
     | otherwise = main
 
 -- Game begins here
--- Players choose whether they want to play with AI or real player
+-- Player choose the game mode
 main :: IO ()
 main = do
     putStrLn "Please choose one mode."
