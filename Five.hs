@@ -29,13 +29,13 @@ initBoard x = Board (replicate x (replicate x Blank))
 -- If White -> X
 colMark :: [[Cell]] -> Int -> IO ()
 colMark [] idx = putStrLn ""
-colMark (y:ys) idx | idx < 10 = putStr ((show idx) ++ "  ") >> colMark ys (idx+1)
-                   | idx >= 10 = putStr ((show idx) ++ " ") >> colMark ys (idx+1)
+colMark (y:ys) idx | idx <  10 = putStr ((show idx) ++ "  ") >> colMark ys (idx+1)
+                   | idx >= 10 = putStr ((show idx) ++ " " ) >> colMark ys (idx+1)
 
 rowMark :: [[Cell]] -> Int -> IO ()
 rowMark [] idx = return ()
-rowMark (y:ys) idx | idx < 10 = putStr ((show idx) ++ " ") >> showCell y idx >> rowMark ys (idx+1)
-                   | idx >= 10 = putStr ((show idx) ++ "") >> showCell y idx >> rowMark ys (idx+1)
+rowMark (y:ys) idx | idx <  10 = putStr ((show idx) ++ " ") >> showCell y idx >> rowMark ys (idx+1)
+                   | idx >= 10 = putStr ((show idx) ++ "" ) >> showCell y idx >> rowMark ys (idx+1)
 
 showCell :: [Cell] -> Int -> IO ()
 showCell [] idx = print idx
@@ -113,7 +113,7 @@ cellColor :: Player -> Cell
 cellColor = helper Black White
 
 nextPlayer :: Player -> Mode -> Player
-nextPlayer (Human o) Duo    = helper (Human White) (Human Black) (Human o)
+nextPlayer (Human o)     Duo    = helper (Human White) (Human Black) (Human o)
 nextPlayer (Human Black) Single = helper (AI White) (Human Black) (Human Black)
 nextPlayer (Human White) Single = helper (Human White) (AI Black) (Human White)
 
