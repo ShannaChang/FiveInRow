@@ -27,16 +27,20 @@ initBoard x = Board (replicate x (replicate x Blank))
 -- If Blank -> *
 -- If Blakc -> O
 -- If White -> X
+
+-- Print the column number
 colMark :: [[Cell]] -> Int -> IO ()
 colMark [] idx = putStrLn ""
 colMark (y:ys) idx | idx <  10 = putStr ((show idx) ++ "  ") >> colMark ys (idx+1)
                    | idx >= 10 = putStr ((show idx) ++ " " ) >> colMark ys (idx+1)
 
+-- Print the row number
 rowMark :: [[Cell]] -> Int -> IO ()
 rowMark [] idx = return ()
 rowMark (y:ys) idx | idx <  10 = putStr ((show idx) ++ " ") >> showCell y idx >> rowMark ys (idx+1)
                    | idx >= 10 = putStr ((show idx) ++ "" ) >> showCell y idx >> rowMark ys (idx+1)
 
+-- Print the cells
 showCell :: [Cell] -> Int -> IO ()
 showCell [] idx = print idx
 showCell (y:ys) idx | y == Blank = putStr " * " >> showCell ys idx
@@ -47,13 +51,13 @@ showBoard :: Board Cell -> IO ()
 showBoard (Board (x:xs)) = putStr "   " >> colMark (x:xs) 1 >> rowMark (x:xs) 1 >>
                            putStr "   " >> colMark (x:xs) 1
 
--- update the current status of the board
+-- Update the status of the board
 updateBoard :: Board Cell -> Int -> Int -> Player -> Board Cell
 updateBoard (Board x) col row player = Board (take (row-1) x ++ [newRow] ++ drop row x)
     where
       newRow  = take (col-1) (x !! (row-1)) ++ [cellColor player] ++ drop col (x !! (row-1))
 
--- check whether the player make a coherently sequence of five stones 
+-- Check if the player make a coherently sequence of five stones 
 checkFive :: [[Cell]] -> Cell -> Bool
 checkFive xs x | xs == [] = False
                | otherwise =
@@ -65,11 +69,11 @@ checkFive xs x | xs == [] = False
       in
         checkLoop (head xs) 1
 
-
+-- Get the position of the stone
 getPos :: Board Cell -> Int -> Int -> Cell
 getPos (Board x) c r = x !! (r-1) !! (c-1)
 
--- check the board status
+-- Check the board status
 checkList :: Board Cell -> Int -> Int -> [[Cell]]
 checkList (Board board) x y =
     let
@@ -106,12 +110,15 @@ helper _ b ( Human White) = b
 helper a _ ( AI Black ) = a
 helper _ b ( AI White) = b
 
+-- Print our the current player
 currentPlayer :: Player -> IO()
 currentPlayer = helper (putStrLn "BLACK's turn: ") (putStrLn "WHITE's turn: ")
 
+-- Get the color of the stone need to input
 cellColor :: Player -> Cell
 cellColor = helper Black White
 
+-- Decide next turn is which player's
 nextPlayer :: Player -> Mode -> Player
 nextPlayer (Human o)     Duo    = helper (Human White) (Human Black) (Human o)
 nextPlayer (Human Black) Single = helper (AI White) (Human Black) (Human Black)
@@ -120,14 +127,14 @@ nextPlayer (Human White) Single = helper (Human White) (AI Black) (Human White)
 nextPlayer (AI Black) _ = helper (Human White) (AI Black) (AI Black)
 nextPlayer (AI White) _ = helper (AI White) (Human Black) (AI White)
 
--- Check input is valid input
+-- Check if the input is valid
 isNumber :: String -> Bool
 isNumber str =
     case (reads str) :: [(Double, String)] of
       [(_, "")] -> True
       _         -> False
 
--- get column position
+-- Get column position from input
 getCol :: IO String
 getCol = do
   putStr "Col: "
@@ -138,7 +145,7 @@ getCol = do
       putStrLn "Please enter a valid position."
       getCol
 
--- get row position
+-- Get row position from input
 getRow :: IO String
 getRow = do
   putStr "Row: "
@@ -149,7 +156,7 @@ getRow = do
       putStrLn "Please enter a valid position." 
       getRow
 
--- A function for every loop 
+-- A function to manage all operations at every single turn 
 loopfunc :: Board Cell -> Int -> Int -> Player -> Mode -> IO ()
 loopfunc (Board x) col row player m = 
     do
