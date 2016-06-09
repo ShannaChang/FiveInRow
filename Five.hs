@@ -27,52 +27,31 @@ initBoard x = Board (replicate x (replicate x Blank))
 -- If Blank -> *
 -- If Blakc -> O
 -- If White -> X
+colMark :: [[Cell]] -> Int -> IO ()
+colMark [] idx = putStrLn ""
+colMark (y:ys) idx | idx < 10 = putStr ((show idx) ++ "  ") >> colMark ys (idx+1)
+                   | idx >= 10 = putStr ((show idx) ++ " ") >> colMark ys (idx+1)
+
+rowMark :: [[Cell]] -> Int -> IO ()
+rowMark [] idx = return ()
+rowMark (y:ys) idx | idx < 10 = putStr ((show idx) ++ " ") >> showCell y idx >> rowMark ys (idx+1)
+                   | idx >= 10 = putStr ((show idx) ++ "") >> showCell y idx >> rowMark ys (idx+1)
+
+showCell :: [Cell] -> Int -> IO ()
+showCell [] idx = print idx
+showCell (y:ys) idx | y == Blank = putStr " * " >> showCell ys idx
+                    | y == Black = putStr " O " >> showCell ys idx
+                    | y == White = putStr " X " >> showCell ys idx
+
 showBoard :: Board Cell -> IO ()
-showBoard (Board (x:xs)) = 
-    let
-        colMark [] idx = putStrLn ""
-        colMark (y:ys) idx | idx < 10 = do putStr ((show idx) ++ "  ")
-                                           colMark ys (idx+1)
-                           | idx >= 10 = do putStr((show idx) ++ " ")
-                                            colMark ys (idx+1)
-
-        rowMark [] idx = return ()
-        rowMark (y:ys) idx | idx < 10 = do putStr ((show idx) ++ " ")
-                                           showCell y idx
-                                           rowMark ys (idx+1)
-                           | idx >= 10 = do putStr ((show idx) ++ "")
-                                            showCell y idx
-                                            rowMark ys (idx+1)
-
-        showCell [] idx    = print idx
-        showCell (y:ys) idx | y == Blank = do putStr " * "
-                                              showCell ys idx
-                            | y == Black = do putStr " O "
-                                              showCell ys idx
-                            | y == White = do putStr " X "
-                                              showCell ys idx
-    in
-        do
-            putStr "   "
-            colMark (x:xs) 1
-            rowMark (x:xs) 1
-            putStr "   "
-            colMark (x:xs) 1
+showBoard (Board (x:xs)) = putStr "   " >> colMark (x:xs) 1 >> rowMark (x:xs) 1 >>
+                           putStr "   " >> colMark (x:xs) 1
 
 -- update the current status of the board
 updateBoard :: Board Cell -> Int -> Int -> Player -> Board Cell
-updateBoard (Board x) col row (Human Black ) = Board (take (row-1) x ++ [newRow] ++ drop row x)
+updateBoard (Board x) col row player = Board (take (row-1) x ++ [newRow] ++ drop row x)
     where
-      newRow  = take (col-1) (x !! (row-1)) ++ [Black] ++ drop col (x !! (row-1))
-updateBoard (Board x) col row (Human White) = Board (take (row-1) x ++ [newRow'] ++ drop row x)
-    where
-      newRow' = take (col-1) (x !! (row-1)) ++ [White] ++ drop col (x !! (row-1))
-updateBoard (Board x) col row (AI Black ) = Board (take (row-1) x ++ [newRow] ++ drop row x)
-    where
-      newRow  = take (col-1) (x !! (row-1)) ++ [Black] ++ drop col (x !! (row-1))
-updateBoard (Board x) col row (AI White) = Board (take (row-1) x ++ [newRow'] ++ drop row x)
-    where
-      newRow' = take (col-1) (x !! (row-1)) ++ [White] ++ drop col (x !! (row-1))
+      newRow  = take (col-1) (x !! (row-1)) ++ [cellColor player] ++ drop col (x !! (row-1))
 
 -- check whether the player make a coherently sequence of five stones 
 checkFive :: [[Cell]] -> Cell -> Bool
@@ -120,26 +99,26 @@ checkList (Board board) x y =
 isGood :: Board Cell -> Int -> Int -> Bool
 isGood (Board x) c r = (getPos (Board x) c r) == Blank
 
--- a higher order function for the currentPlayer checkPlayer nextPlayer function 
-playerHelper :: t -> t -> Player -> t
-playerHelper a _ ( Human Black ) = a
-playerHelper _ b ( Human White) = b
-playerHelper a _ ( AI Black ) = a
-playerHelper _ b ( AI White) = b
+-- A higher order function for the currentPlayer cellColor nextPlayer function 
+helper :: t -> t -> Player -> t
+helper a _ ( Human Black ) = a
+helper _ b ( Human White) = b
+helper a _ ( AI Black ) = a
+helper _ b ( AI White) = b
 
 currentPlayer :: Player -> IO()
-currentPlayer = playerHelper (putStrLn "BLACK's turn: ") (putStrLn "WHITE's turn: ")
+currentPlayer = helper (putStrLn "BLACK's turn: ") (putStrLn "WHITE's turn: ")
 
-checkPlayer :: Player -> Cell
-checkPlayer = playerHelper Black White
+cellColor :: Player -> Cell
+cellColor = helper Black White
 
 nextPlayer :: Player -> Mode -> Player
-nextPlayer (Human o) Duo    = playerHelper (Human White) (Human Black) (Human o)
-nextPlayer (Human Black) Single = playerHelper (AI White) (Human Black) (Human Black)
-nextPlayer (Human White) Single = playerHelper (Human White) (AI Black) (Human White)
+nextPlayer (Human o) Duo    = helper (Human White) (Human Black) (Human o)
+nextPlayer (Human Black) Single = helper (AI White) (Human Black) (Human Black)
+nextPlayer (Human White) Single = helper (Human White) (AI Black) (Human White)
 
-nextPlayer (AI Black) _ = playerHelper (Human White) (AI Black) (AI Black)
-nextPlayer (AI White) _ = playerHelper (AI White) (Human Black) (AI White)
+nextPlayer (AI Black) _ = helper (Human White) (AI Black) (AI Black)
+nextPlayer (AI White) _ = helper (AI White) (Human Black) (AI White)
 
 -- Check input is valid input
 isNumber :: String -> Bool
@@ -176,7 +155,7 @@ loopfunc (Board x) col row player m =
     do
       if isGood (Board x) col row
       then do
-        if checkFive (checkList (Board x) col row) (checkPlayer player)
+        if checkFive (checkList (Board x) col row) (cellColor player)
          then do
           showBoard (updateBoard (Board x) col row player)
           putStrLn "You Win!!!"
