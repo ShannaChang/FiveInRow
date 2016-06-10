@@ -123,7 +123,6 @@ nextPlayer :: Player -> Mode -> Player
 nextPlayer (Human o)     Duo    = helper (Human White) (Human Black) (Human o)
 nextPlayer (Human Black) Single = helper (AI White) (Human Black) (Human Black)
 nextPlayer (Human White) Single = helper (Human White) (AI Black) (Human White)
-
 nextPlayer (AI Black) _ = helper (Human White) (AI Black) (AI Black)
 nextPlayer (AI White) _ = helper (AI White) (Human Black) (AI White)
 
